@@ -1,0 +1,24 @@
+Revision history for Net-SSL-ExpireDate
+
+1.04  2007-04-12
+  * require IO::Socket::SSL >= 0.99.
+    because IO::Socket::SSL < 0.98 cause segmentation fault.
+    (thanks: tokuhirom)
+
+1.03  2007-03-01
+  * replace "https" (keyword in constructor) with "ssl".
+    you can check SMTP over SSL: "ssl => 'example.com:465'" without
+    incongruity. ;p)
+    (thanks: mizzy)
+
+1.02  2006-11-26
+  * neither functional changes nor bug fixes.
+  * fixed module dependence.
+
+1.01  2006-11-22
+  * added sample scripts to "samples" directory.
+  * added new getter methods: ExpireDate#type and #target.
+
+1.00  2006-11-18
+  * Initial release.
+
