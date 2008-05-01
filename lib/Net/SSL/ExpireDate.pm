@@ -7,9 +7,8 @@ use Carp;
 our $VERSION = '1.04';
 
 use base qw(Class::Accessor);
-use IO::Socket::SSL;
-use Net::SSLeay;
-use Crypt::OpenSSL::X509;
+use IO::Socket;
+use Crypt::OpenSSL::X509 qw(FORMAT_ASN1);
 use Date::Parse;
 use DateTime;
 use DateTime::Duration;
@@ -17,14 +16,37 @@ use Time::Duration::Parse;
 
 __PACKAGE__->mk_accessors(qw(type target));
 
-BEGIN {
-    my $debug_flag = $ENV{SMART_COMMENTS} || $ENV{SMART_COMMENT} || $ENV{SMART_DEBUG} || $ENV{SC};
-    if ($debug_flag) {
-        my @p = map { '#'x$_ } ($debug_flag =~ /([345])\s*/g);
-        use UNIVERSAL::require;
-        Smart::Comments->use(@p);
-    }
-}
+my $SSL3_RT_CHANGE_CIPHER_SPEC = 20;
+my $SSL3_RT_ALERT              = 21;
+my $SSL3_RT_HANDSHAKE          = 22;
+my $SSL3_RT_APPLICATION_DATA   = 23;
+
+my $SSL3_MT_HELLO_REQUEST       =  0;
+my $SSL3_MT_CLIENT_HELLO        =  1;
+my $SSL3_MT_SERVER_HELLO        =  2;
+my $SSL3_MT_CERTIFICATE         = 11;
+my $SSL3_MT_SERVER_KEY_EXCHANGE = 12;
+my $SSL3_MT_CERTIFICATE_REQUEST = 13;
+my $SSL3_MT_SERVER_DONE         = 14;
+my $SSL3_MT_CERTIFICATE_VERIFY  = 15;
+my $SSL3_MT_CLIENT_KEY_EXCHANGE = 16;
+my $SSL3_MT_FINISHED            = 20;
+
+my $SSL3_AL_WARNING = 0x01;
+my $SSL3_AL_FATAL   = 0x02;
+
+my $SSL3_AD_CLOSE_NOTIFY            =  0;
+my $SSL3_AD_UNEXPECTED_MESSAGE      = 10; # fatal
+my $SSL3_AD_BAD_RECORD_MAC          = 20; # fatal
+my $SSL3_AD_DECOMPRESSION_FAILURE   = 30; # fatal
+my $SSL3_AD_HANDSHAKE_FAILURE       = 40; # fatal
+my $SSL3_AD_NO_CERTIFICATE          = 41;
+my $SSL3_AD_BAD_CERTIFICATE         = 42;
+my $SSL3_AD_UNSUPPORTED_CERTIFICATE = 43;
+my $SSL3_AD_CERTIFICATE_REVOKED     = 44;
+my $SSL3_AD_CERTIFICATE_EXPIRED     = 45;
+my $SSL3_AD_CERTIFICATE_UNKNOWN     = 46;
+my $SSL3_AD_ILLEGAL_PARAMETER       = 47; # fatal
 
 sub new {
     my ($class, %opt) = @_;
@@ -60,18 +82,10 @@ sub expire_date {
             $port ||= 443;
             ### $host
             ### $port
-            my $sock = IO::Socket::SSL->new("$host:$port");
-            croak IO::Socket::SSL::errstr() if ! $sock;
-            my $cert = $sock->peer_certificate();
-
-            my $expire_date_asn1 = Net::SSLeay::X509_get_notAfter($cert);
-            my $expire_date_str  = Net::SSLeay::P_ASN1_UTCTIME_put2string($expire_date_asn1);
-            ### $expire_date_str
-            my $begin_date_asn1  = Net::SSLeay::X509_get_notBefore($cert);
-            my $begin_date_str   = Net::SSLeay::P_ASN1_UTCTIME_put2string($begin_date_asn1);
-            ### $begin_date_str
-
-            $sock->close;
+            my $cert = _peer_certificate($host, $port);
+            my $x509 = Crypt::OpenSSL::X509->new_from_string($cert, FORMAT_ASN1);
+            my $begin_date_str  = $x509->notBefore;
+            my $expire_date_str = $x509->notAfter;
 
             $self->{expire_date} = DateTime->from_epoch(epoch => str2time($expire_date_str));
             $self->{begin_date}  = DateTime->from_epoch(epoch => str2time($begin_date_str));
@@ -119,6 +133,200 @@ sub is_expired {
     return DateTime->compare($dx, $self->{expire_date}) >= 0 ? 1 : ();
 }
 
+sub _peer_certificate {
+    my($host, $port) = @_;
+
+    my $cert;
+
+    no warnings 'once';
+    *IO::Socket::INET::write_atomically = sub {
+        my($self, $data) = @_;
+
+        my $length    = length $data;
+        my $offset    = 0;
+        my $read_byte = 0;
+
+        while ($length > 0) {
+            my $r = $self->syswrite($data, $length, $offset) || last;
+            $offset    += $r;
+            $length    -= $r;
+            $read_byte += $r;
+        }
+
+        return $read_byte;
+    };
+
+    my $sock = IO::Socket::INET->new(
+        PeerAddr => $host,
+        PeerPort => $port,
+        Proto    => 'tcp',
+       ) or croak "cannot create socket: $!";
+
+    _send_client_hello($sock);
+
+    my $do_loop = 1;
+    while ($do_loop) {
+        my $record = _get_record($sock) or croak $!;
+        croak "record type is not HANDSHAKE" if $record->{type} != $SSL3_RT_HANDSHAKE;
+
+        while (my $handshake = _get_handshake($record)) {
+            croak "too many loop" if $do_loop++ >= 10;
+            if ($handshake->{type} == $SSL3_MT_HELLO_REQUEST) {
+                ;
+            } elsif ($handshake->{type} == $SSL3_MT_CERTIFICATE_REQUEST) {
+                ;
+            } elsif ($handshake->{type} == $SSL3_MT_SERVER_HELLO) {
+                ;
+            } elsif ($handshake->{type} == $SSL3_MT_CERTIFICATE) {
+                my $data = $handshake->{data};
+                my $len1 = $handshake->{length};
+                my $len2 = (vec($data, 0, 8)<<16)+(vec($data, 1, 8)<<8)+vec($data, 2, 8);
+                my $len3 = (vec($data, 3, 8)<<16)+(vec($data, 4, 8)<<8)+vec($data, 5, 8);
+                croak "X509: length error" if $len1 != $len2 + 3;
+                $cert = substr $data, 6; # DER format
+            } elsif ($handshake->{type} == $SSL3_MT_SERVER_KEY_EXCHANGE) {
+                ;
+            } elsif ($handshake->{type} == $SSL3_MT_SERVER_DONE) {
+                $do_loop = 0;
+            } else {
+                ;
+            }
+        }
+
+    }
+
+    _sendalert($sock, $SSL3_AL_FATAL, $SSL3_AD_HANDSHAKE_FAILURE) or croak $!;
+    $sock->close;
+
+    return $cert;
+}
+
+sub _send_client_hello {
+    my($sock) = @_;
+
+    my(@buf,$len);
+    ## record
+    push @buf, $SSL3_RT_HANDSHAKE;
+    push @buf, 3, 0;
+    push @buf, undef, undef;
+    my $pos_record_len = $#buf-1;
+
+    ## handshake
+    push @buf, $SSL3_MT_CLIENT_HELLO;
+    push @buf, undef, undef, undef;
+    my $pos_handshake_len = $#buf-2;
+
+    ## ClientHello
+    # client_version
+    push @buf, 3, 0;
+    # random
+    my $time = time;
+    push @buf, (($time>>24) & 0xFF);
+    push @buf, (($time>>16) & 0xFF);
+    push @buf, (($time>> 8) & 0xFF);
+    push @buf, (($time    ) & 0xFF);
+    push @buf, ((0xFF) x 28);
+    # session_id
+    push @buf, 0;
+    # cipher_suites
+    $len = 27 * 2;
+    push @buf, (($len >> 8) & 0xFF);
+    push @buf, (($len     ) & 0xFF);
+    for (my $i=1; $i<=27; $i++) {
+        push @buf, (($i >> 8) & 0xFF);
+        push @buf, (($i     ) & 0xFF);
+    }
+    # compression
+    push @buf, 1;
+    push @buf, 0;
+
+    # record length
+    $len = scalar(@buf) - $pos_record_len - 2;
+    $buf[ $pos_record_len   ] = (($len >>  8) & 0xFF);
+    $buf[ $pos_record_len+1 ] = (($len      ) & 0xFF);
+
+    # handshake length
+    $len = scalar(@buf) - $pos_handshake_len - 3;
+    $buf[ $pos_handshake_len   ] = (($len >> 16) & 0xFF);
+    $buf[ $pos_handshake_len+1 ] = (($len >>  8) & 0xFF);
+    $buf[ $pos_handshake_len+2 ] = (($len      ) & 0xFF);
+
+    my $data;
+    $data .= pack('C', $_) for @buf;
+
+    return $sock->write_atomically($data);
+}
+
+sub _get_record {
+    my($sock) = @_;
+
+    my $record = {
+        type    => -1,
+        version => -1,
+        length  => -1,
+        read    =>  0,
+        data    => "",
+    };
+
+    $sock->read($record->{type}   , 1) or croak $!;
+    $record->{type} = unpack 'C', $record->{type};
+
+    $sock->read($record->{version}, 2) or croak $!;
+    $record->{version} = unpack 'n', $record->{version};
+
+    $sock->read($record->{length},  2) or croak $!;
+    $record->{length}  = unpack 'n', $record->{length};
+
+    $sock->read($record->{data},    $record->{length}) or croak $!;
+
+    return $record;
+}
+
+sub _get_handshake {
+    my($record) = @_;
+
+    my $handshake = {
+        type   => -1,
+        length => -1,
+        data   => "",
+       };
+
+    return if $record->{read} >= $record->{length};
+
+    $handshake->{type}   = vec($record->{data}, $record->{read}++, 8);
+    return if $record->{read} + 3 > $record->{length};
+
+    $handshake->{length} =
+         (vec($record->{data}, $record->{read}++, 8)<<16)
+        +(vec($record->{data}, $record->{read}++, 8)<< 8)
+        +(vec($record->{data}, $record->{read}++, 8)    );
+
+    if ($handshake->{length} > 0) {
+        $handshake->{data} = substr($record->{data}, $record->{read}, $handshake->{length});
+        $record->{read} += $handshake->{length};
+        return if $record->{read} > $record->{length};
+    } else {
+        $handshake->{data}= undef;
+    }
+
+    return $handshake;
+}
+
+sub _sendalert {
+    my($sock, $level, $desc) = @_;
+
+    my $data = "";
+
+    $data .= pack('C', $SSL3_RT_ALERT);
+    $data .= pack('C', 3);
+    $data .= pack('C', 0);
+    $data .= pack('C', 0);
+    $data .= pack('C', 2);
+    $data .= pack('C', $level);
+    $data .= pack('C', $desc);
+
+    return $sock->write_atomically($data);
+}
 
 1; # Magic true value required at end of module
 __END__
