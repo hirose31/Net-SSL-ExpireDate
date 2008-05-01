@@ -17,8 +17,12 @@
 ^t/x\d+.*\.t
 ^tools/
 \.svn/
+\.git/
+\junk/
 ^[^/]+\.yaml$
 ^[^/]+\.pl$
 ^t.pl$
 ^[^/]+\.pem$
 ^MEMO
+\.shipit$
+\.gitignore$

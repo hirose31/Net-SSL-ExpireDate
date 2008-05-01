@@ -1,10 +1,8 @@
-Build.PL
 Changes
 inc/Module/AutoInstall.pm
 inc/Module/Install.pm
 inc/Module/Install/AutoInstall.pm
 inc/Module/Install/Base.pm
-inc/Module/Install/Build.pm
 inc/Module/Install/Can.pm
 inc/Module/Install/Fetch.pm
 inc/Module/Install/Include.pm
@@ -29,6 +27,7 @@ sample/cert-list.txt
 sample/check-cert-expire.pl
 t/00.load.t
 t/01.https.t
+t/01.https_client-auth.t
 t/02.file.t
 t/03.accessor.t
 t/04.ssl.t

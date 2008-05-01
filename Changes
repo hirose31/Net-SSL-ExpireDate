@@ -1,5 +1,12 @@
 Revision history for Net-SSL-ExpireDate
 
+1.05  2008-05-01
+  * support https which requires client authentication.
+    now, Net-SSL-ExpireDate talks SSL protocol directly not using OpenSSL.
+    inspired:  keepalived-extcheck, SSL_HELLO
+    http://lab.klab.org/modules/mediawiki/index.php/Software#keepalived-extcheck
+    (thanks: yasui0906)
+
 1.04  2007-04-12
   * require IO::Socket::SSL >= 0.99.
     because IO::Socket::SSL < 0.98 cause segmentation fault.
