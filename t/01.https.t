@@ -38,16 +38,16 @@ run {
     my $ed = Net::SSL::ExpireDate->new( https => $block->input );
 
     my $expire_date  = $ed->expire_date;
-    is_deeply $expire_date,  $block->expire_date, 'expire_date';
+    is $expire_date->iso8601,  $block->expire_date->iso8601, 'expire_date';
 
     my $begin_date   = $ed->begin_date;
-    is_deeply $begin_date,   $block->begin_date,  'begin_date';
+    is $begin_date->iso8601,   $block->begin_date->iso8601,  'begin_date';
 
     my $not_after    = $ed->not_after;
-    is_deeply $not_after,    $block->not_after,   'not_after';
+    is $not_after->iso8601,    $block->not_after->iso8601,   'not_after';
 
     my $not_before   = $ed->not_before;
-    is_deeply $not_before,   $block->not_before,  'not_before';
+    is $not_before->iso8601,   $block->not_before->iso8601,  'not_before';
 
     my $is_expired   = $ed->is_expired;
     is $is_expired,   $block->is_expired,         'is_expired';
