@@ -15,21 +15,21 @@ filters {
 # Not Before: Aug 20 10:35:42 2003 GMT
 # Not After : Aug 19 10:35:42 2005 GMT
 our %NOT_BEFORE = (
-    year      => 2003,
-    month     =>  8,
-    day       => 20,
-    hour      => 10,
-    minute    => 35,
-    second    => 42,
+    year      => 2008,
+    month     =>  5,
+    day       =>  8,
+    hour      =>  0,
+    minute    =>  0,
+    second    =>  0,
     time_zone => 'UTC'
 );
 our %NOT_AFTER  = (
-    year      => 2005,
-    month     =>  8,
-    day       => 19,
-    hour      => 10,
-    minute    => 35,
-    second    => 42,
+    year      => 2011,
+    month     =>  7,
+    day       => 31,
+    hour      => 23,
+    minute    => 59,
+    second    => 59,
     time_zone => 'UTC'
 );
 
@@ -61,8 +61,8 @@ run {
 }
 
 __END__
-=== t.relay.klab.org
---- input: t.relay.klab.org
+=== e-ipa2.ipa.go.jp
+--- input: e-ipa2.ipa.go.jp
 --- expire_date
 DateTime->new(%main::NOT_AFTER);
 --- begin_date
@@ -71,5 +71,5 @@ DateTime->new(%main::NOT_BEFORE);
 DateTime->new(%main::NOT_AFTER);
 --- not_before
 DateTime->new(%main::NOT_BEFORE);
---- is_expired: 1
+--- is_expired: undef
 --- will_expired: 1

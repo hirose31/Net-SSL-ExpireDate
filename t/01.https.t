@@ -15,21 +15,21 @@ filters {
 #  Not Before: Apr 16 05:12:17 2005 GMT
 #  Not After : Apr 14 05:12:17 2015 GMT
 our %NOT_BEFORE = (
-    year      => 2005,
-    month     =>  4,
-    day       => 16,
-    hour      =>  5,
-    minute    => 12,
-    second    => 17,
+    year      => 2009,
+    month     => 12,
+    day       => 18,
+    hour      => 10,
+    minute    => 33,
+    second    =>  9,
     time_zone => 'UTC'
 );
 our %NOT_AFTER  = (
-    year      => 2015,
-    month     =>  4,
-    day       => 14,
-    hour      =>  5,
-    minute    => 12,
-    second    => 17,
+    year      => 2014,
+    month     => 12,
+    day       => 19,
+    hour      => 14,
+    minute    => 58,
+    second    => 44,
     time_zone => 'UTC'
 );
 
