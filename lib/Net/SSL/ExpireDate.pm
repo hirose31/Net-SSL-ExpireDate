@@ -424,13 +424,24 @@ L<http://rt.cpan.org>.
 
 =head1 AUTHOR
 
-HIROSE Masaaki  C<< <hirose31@gmail.com> >>
+HIROSE Masaaki E<lt>hirose31 _at_ gmail.comE<gt>
 
+=head1 REPOSITORY
 
-=head1 LICENCE AND COPYRIGHT
+L<http://github.com/hirose31/net-ssl-expiredate>
 
-Copyright (c) 2006, HIROSE Masaaki C<< <hirose31@gmail.com> >>. All rights reserved.
+  git clone git://github.com/hirose31/net-ssl-expiredate.git
 
-This module is free software; you can redistribute it and/or
-modify it under the same terms as Perl itself. See L<perlartistic>.
+patches and collaborators are welcome.
+
+=head1 SEE ALSO
+
+=head1 COPYRIGHT & LICENSE
+
+Copyright HIROSE Masaaki
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut
 

@@ -1,18 +1,24 @@
 use inc::Module::Install;
+#use Module::Install::AuthorTests;
+#use Module::Install::Repository;
 
 name     'Net-SSL-ExpireDate';
 all_from 'lib/Net/SSL/ExpireDate.pm';
+license  'perl';
+auto_set_repository;
 
-requires 'Class::Accessor'       => 0;
-requires 'IO::Socket'            => 0;
-requires 'Crypt::OpenSSL::X509'  => 0;
-requires 'Date::Parse'           => 0;
-requires 'DateTime'              => 0;
-requires 'DateTime::Duration'    => 0;
-requires 'Time::Duration::Parse' => 0;
+requires 'Class::Accessor';
+requires 'IO::Socket';
+requires 'Crypt::OpenSSL::X509';
+requires 'Date::Parse';
+requires 'DateTime';
+requires 'DateTime::Duration';
+requires 'Time::Duration::Parse';
 
-build_requires 'Test::More'      => 0;
+test_requires 'Test::More';
+
+tests_recursive;
+author_tests 'xt';
 
 use_test_base;
-auto_install;
 WriteAll;
