@@ -48,6 +48,9 @@ my $SSL3_AD_CERTIFICATE_EXPIRED     = 45;
 my $SSL3_AD_CERTIFICATE_UNKNOWN     = 46;
 my $SSL3_AD_ILLEGAL_PARAMETER       = 47; # fatal
 
+eval 'use IO::Socket::INET6';
+my $ipv6_support = $@ ? 0 : 1;
+
 sub new {
     my ($class, %opt) = @_;
 
@@ -139,7 +142,7 @@ sub _peer_certificate {
     my $cert;
 
     no warnings 'once';
-    *IO::Socket::INET::write_atomically = sub {
+    my $sub = sub {
         my($self, $data) = @_;
 
         my $length    = length $data;
@@ -156,11 +159,19 @@ sub _peer_certificate {
         return $read_byte;
     };
 
-    my $sock = IO::Socket::INET->new(
+    my $sock = {
         PeerAddr => $host,
         PeerPort => $port,
         Proto    => 'tcp',
-       ) or croak "cannot create socket: $!";
+    };
+
+    if( $ipv6_support ){
+        *IO::Socket::INET6::write_atomically = $sub;
+        $sock = IO::Socket::INET6->new( %$sock ) or croak "cannot create socket: $!";
+    } else {
+        *IO::Socket::INET::write_atomically = $sub;
+        $sock = IO::Socket::INET->new( %$sock ) or croak "cannot create socket: $!";
+    }
 
     _send_client_hello($sock);
 
