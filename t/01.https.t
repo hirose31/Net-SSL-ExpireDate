@@ -2,7 +2,11 @@
 use Test::Base;
 use Net::SSL::ExpireDate;
 
-plan tests => 7 * blocks;
+if ($ENV{TEST_HTTPS}) {
+    plan tests => 7 * blocks;
+} else {
+    plan skip_all => 'set TEST_HTTPS=1 if you want to test https access';
+}
 
 filters {
     expire_date => [qw(eval)],
