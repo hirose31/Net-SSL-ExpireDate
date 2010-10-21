@@ -7,12 +7,18 @@ use Carp;
 our $VERSION = '1.05';
 
 use base qw(Class::Accessor);
-use IO::Socket;
 use Crypt::OpenSSL::X509 qw(FORMAT_ASN1);
 use Date::Parse;
 use DateTime;
 use DateTime::Duration;
 use Time::Duration::Parse;
+
+my $Socket = 'IO::Socket::INET6';
+eval "require $Socket";
+if ($@) {
+    $Socket = 'IO::Socket::INET';
+    require $Socket;
+}
 
 __PACKAGE__->mk_accessors(qw(type target));
 
@@ -47,9 +53,6 @@ my $SSL3_AD_CERTIFICATE_REVOKED     = 44;
 my $SSL3_AD_CERTIFICATE_EXPIRED     = 45;
 my $SSL3_AD_CERTIFICATE_UNKNOWN     = 46;
 my $SSL3_AD_ILLEGAL_PARAMETER       = 47; # fatal
-
-eval 'use IO::Socket::INET6';
-my $ipv6_support = $@ ? 0 : 1;
 
 sub new {
     my ($class, %opt) = @_;
@@ -142,7 +145,8 @@ sub _peer_certificate {
     my $cert;
 
     no warnings 'once';
-    my $sub = sub {
+    no strict 'refs';
+    *{$Socket.'::write_atomically'} = sub {
         my($self, $data) = @_;
 
         my $length    = length $data;
@@ -165,13 +169,7 @@ sub _peer_certificate {
         Proto    => 'tcp',
     };
 
-    if( $ipv6_support ){
-        *IO::Socket::INET6::write_atomically = $sub;
-        $sock = IO::Socket::INET6->new( %$sock ) or croak "cannot create socket: $!";
-    } else {
-        *IO::Socket::INET::write_atomically = $sub;
-        $sock = IO::Socket::INET->new( %$sock ) or croak "cannot create socket: $!";
-    }
+    $sock = $Socket->new( %$sock ) or croak "cannot create socket: $!";
 
     _send_client_hello($sock);
 
