@@ -1,9 +1,12 @@
 Revision history for Net-SSL-ExpireDate
 
-1.06  2010-10-21
+1.07  2010-10-21
   * use IO::Socket::INET6 instead of ::INET if available.
     (thanks https://rt.cpan.org/Public/Bug/Display.html?id=62236 )
-  * update some tests.
+
+1.06  2009-06-30
+  * change test URL. (01.https_client-auth.t)
+  * move some tests to xt.
 
 1.05  2008-05-01
   * support https which requires client authentication.
