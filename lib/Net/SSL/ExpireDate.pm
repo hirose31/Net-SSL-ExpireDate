@@ -17,7 +17,7 @@ my $Socket = 'IO::Socket::INET6';
 eval "require $Socket";
 if ($@) {
     $Socket = 'IO::Socket::INET';
-    require $Socket;
+    eval "require $Socket";
 }
 
 __PACKAGE__->mk_accessors(qw(type target));
