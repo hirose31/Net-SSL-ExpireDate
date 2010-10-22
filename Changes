@@ -1,5 +1,8 @@
 Revision history for Net-SSL-ExpireDate
 
+1.08  2010-10-22
+  * fixed require IO::Socket::INET.
+
 1.07  2010-10-21
   * use IO::Socket::INET6 instead of ::INET if available.
     (thanks https://rt.cpan.org/Public/Bug/Display.html?id=62236 )
