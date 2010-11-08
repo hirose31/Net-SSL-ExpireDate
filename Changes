@@ -1,5 +1,9 @@
 Revision history for Net-SSL-ExpireDate
 
+1.09  2010-11-08
+  * support timeout.
+    (thanks http://sharl.haun.org/d/2010110801)
+
 1.08  2010-10-22
   * fixed require IO::Socket::INET.
 

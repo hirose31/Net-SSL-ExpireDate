@@ -61,6 +61,7 @@ sub new {
         type        => undef,
         target      => undef,
         expire_date => undef,
+        timeout     => undef,
        }, $class;
 
     if ( $opt{https} or $opt{ssl} ) {
@@ -75,6 +76,9 @@ sub new {
     } else {
         croak "missing option: neither ssl nor file";
     }
+    if ($opt{timeout}) {
+        $self->{timeout} = $opt{timeout};
+    }
 
     return $self;
 }
@@ -88,7 +92,7 @@ sub expire_date {
             $port ||= 443;
             ### $host
             ### $port
-            my $cert = _peer_certificate($host, $port);
+            my $cert = _peer_certificate($host, $port, $self->{timeout});
             my $x509 = Crypt::OpenSSL::X509->new_from_string($cert, FORMAT_ASN1);
             my $begin_date_str  = $x509->notBefore;
             my $expire_date_str = $x509->notAfter;
@@ -140,7 +144,7 @@ sub is_expired {
 }
 
 sub _peer_certificate {
-    my($host, $port) = @_;
+    my($host, $port, $timeout) = @_;
 
     my $cert;
 
@@ -167,6 +171,7 @@ sub _peer_certificate {
         PeerAddr => $host,
         PeerPort => $port,
         Proto    => 'tcp',
+        Timeout  => $timeout,
     };
 
     $sock = $Socket->new( %$sock ) or croak "cannot create socket: $!";
