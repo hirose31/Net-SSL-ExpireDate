@@ -14,6 +14,7 @@ requires 'Date::Parse';
 requires 'DateTime';
 requires 'DateTime::Duration';
 requires 'Time::Duration::Parse';
+requires 'UNIVERSAL::require';
 
 test_requires 'Test::More';
 

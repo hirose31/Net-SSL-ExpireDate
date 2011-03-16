@@ -12,12 +12,12 @@ use Date::Parse;
 use DateTime;
 use DateTime::Duration;
 use Time::Duration::Parse;
+use UNIVERSAL::require;
 
 my $Socket = 'IO::Socket::INET6';
-eval "require $Socket";
-if ($@) {
+unless ($Socket->require) {
     $Socket = 'IO::Socket::INET';
-    eval "require $Socket";
+    $Socket->require or die $@;
 }
 
 __PACKAGE__->mk_accessors(qw(type target));
