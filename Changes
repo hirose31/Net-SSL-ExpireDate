@@ -1,5 +1,10 @@
 Revision history for Net-SSL-ExpireDate
 
+1.10  2011-03-16
+  * no feature changes
+  * use UNIVERSAL::require instead of eval EXPR
+  * update expire date of test case
+
 1.09  2010-11-08
   * support timeout.
     (thanks http://sharl.haun.org/d/2010110801)
