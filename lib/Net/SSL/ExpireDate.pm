@@ -149,7 +149,7 @@ sub _peer_certificate {
     my $cert;
 
     no warnings 'once';
-    no strict 'refs';
+    no strict 'refs'; ## no critic
     *{$Socket.'::write_atomically'} = sub {
         my($self, $data) = @_;
 
