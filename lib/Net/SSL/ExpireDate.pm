@@ -359,12 +359,15 @@ Net::SSL::ExpireDate - obtain expiration date of certificate
     $ed = Net::SSL::ExpireDate->new( ssl   => 'example.com:995' ); # pop3s
     $ed = Net::SSL::ExpireDate->new( file  => '/etc/ssl/cert.pem' );
 
-    $expire_date = $ed->expire_date;         # return DateTime instance
+    if (defined $ed->expire_date) {
+      # do something
+      $expire_date = $ed->expire_date;         # return DateTime instance
 
-    $expired = $ed->is_expired;              # examine already expired
+      $expired = $ed->is_expired;              # examine already expired
 
-    $expired = $ed->is_expired('2 months');  # will expire after 2 months
-    $expired = $ed->is_expired(DateTime::Duration->new(months=>2));  # ditto
+      $expired = $ed->is_expired('2 months');  # will expire after 2 months
+      $expired = $ed->is_expired(DateTime::Duration->new(months=>2));  # ditto
+    }
 
 =head1 DESCRIPTION
 
