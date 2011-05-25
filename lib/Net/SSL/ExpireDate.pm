@@ -92,7 +92,9 @@ sub expire_date {
             $port ||= 443;
             ### $host
             ### $port
-            my $cert = _peer_certificate($host, $port, $self->{timeout});
+            my $cert = eval { _peer_certificate($host, $port, $self->{timeout}); };
+            warn $@ if $@;
+            return unless $cert;
             my $x509 = Crypt::OpenSSL::X509->new_from_string($cert, FORMAT_ASN1);
             my $begin_date_str  = $x509->notBefore;
             my $expire_date_str = $x509->notAfter;
@@ -180,7 +182,7 @@ sub _peer_certificate {
 
     my $do_loop = 1;
     while ($do_loop) {
-        my $record = _get_record($sock) or croak $!;
+        my $record = _get_record($sock);
         croak "record type is not HANDSHAKE" if $record->{type} != $SSL3_RT_HANDSHAKE;
 
         while (my $handshake = _get_handshake($record)) {
@@ -282,16 +284,16 @@ sub _get_record {
         data    => "",
     };
 
-    $sock->read($record->{type}   , 1) or croak $!;
+    $sock->read($record->{type}   , 1) or croak "cannot read type";
     $record->{type} = unpack 'C', $record->{type};
 
-    $sock->read($record->{version}, 2) or croak $!;
+    $sock->read($record->{version}, 2) or croak "cannot read version";
     $record->{version} = unpack 'n', $record->{version};
 
-    $sock->read($record->{length},  2) or croak $!;
+    $sock->read($record->{length},  2) or croak "cannot read length";
     $record->{length}  = unpack 'n', $record->{length};
 
-    $sock->read($record->{data},    $record->{length}) or croak $!;
+    $sock->read($record->{data},    $record->{length}) or croak "cannot read data";
 
     return $record;
 }
