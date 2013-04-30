@@ -1,5 +1,8 @@
 Revision history for Net-SSL-ExpireDate
 
+1.11  2013-04-30
+  * Support TLS v1.2
+
 1.10  2011-03-16
   * no feature changes
   * use UNIVERSAL::require instead of eval EXPR
