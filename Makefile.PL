@@ -3,6 +3,7 @@ use inc::Module::Install;
 #use Module::Install::Repository;
 
 name     'Net-SSL-ExpireDate';
+perl_version '5.006';
 all_from 'lib/Net/SSL/ExpireDate.pm';
 license  'perl';
 auto_set_repository;
