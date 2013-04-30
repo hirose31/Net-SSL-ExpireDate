@@ -234,7 +234,7 @@ sub _send_client_hello {
 
     ## ClientHello
     # client_version
-    push @buf, 3, 0;
+    push @buf, 3, 3;
     # random
     my $time = time;
     push @buf, (($time>>24) & 0xFF);
