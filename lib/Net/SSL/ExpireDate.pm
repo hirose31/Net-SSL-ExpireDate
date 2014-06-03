@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Carp;
 
-our $VERSION = '1.11';
+our $VERSION = '1.12';
 
 use base qw(Class::Accessor);
 use Crypt::OpenSSL::X509 qw(FORMAT_ASN1);

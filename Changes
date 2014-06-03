@@ -1,5 +1,9 @@
 Revision history for Net-SSL-ExpireDate
 
+1.12  2014-06-03
+  * Support SNI (Server Name Indication) extension
+    ref: https://rt.cpan.org/Public/Bug/Display.html?id=94573
+
 1.11  2013-04-30
   * Support TLS v1.2
 
