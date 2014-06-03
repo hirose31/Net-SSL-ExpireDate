@@ -178,7 +178,11 @@ sub _peer_certificate {
 
     $sock = $Socket->new( %$sock ) or croak "cannot create socket: $!";
 
-    _send_client_hello($sock);
+    my $servername;
+    if ($host !~ /^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/) {
+        $servername = $host;
+    }
+    _send_client_hello($sock, $servername);
 
     my $do_loop = 1;
     while ($do_loop) {
@@ -218,7 +222,7 @@ sub _peer_certificate {
 }
 
 sub _send_client_hello {
-    my($sock) = @_;
+    my($sock, $servername) = @_;
 
     my(@buf,$len);
     ## record
@@ -256,6 +260,29 @@ sub _send_client_hello {
     push @buf, 1;
     push @buf, 0;
 
+    if ($servername) {
+        my $sn_len = length $servername;
+        # Extensions length
+        push @buf, ((($sn_len+9) >> 8) & 0xFF);
+        push @buf, ((($sn_len+9)     ) & 0xFF);
+        # SNI (Server Name Indication)
+        # Extension Type: Server Name
+        push @buf, 0, 0;
+        # Length
+        push @buf, ((($sn_len+5) >> 8) & 0xFF);
+        push @buf, ((($sn_len+5)     ) & 0xFF);
+        # Server Name Indication Length
+        push @buf, ((($sn_len+3) >> 8) & 0xFF);
+        push @buf, ((($sn_len+3)     ) & 0xFF);
+        # Server Name Type: host_name
+        push @buf, 0;
+        # Length of servername
+        push @buf, (($sn_len >> 8) & 0xFF);
+        push @buf, (($sn_len     ) & 0xFF);
+        # Servername
+        push @buf, split //, $servername;
+    }
+
     # record length
     $len = scalar(@buf) - $pos_record_len - 2;
     $buf[ $pos_record_len   ] = (($len >>  8) & 0xFF);
@@ -268,7 +295,13 @@ sub _send_client_hello {
     $buf[ $pos_handshake_len+2 ] = (($len      ) & 0xFF);
 
     my $data;
-    $data .= pack('C', $_) for @buf;
+    for my $c (@buf) {
+        if ($c =~ /^[0-9]+$/) {
+            $data .= pack('C', $c);
+        } else {
+            $data .= $c;
+        }
+    }
 
     return $sock->write_atomically($data);
 }
