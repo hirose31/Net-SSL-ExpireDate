@@ -13,24 +13,24 @@ filters {
     is_expired  => [qw(eval)],
 };
 
-#  Not Before: Apr 16 05:12:17 2005 GMT
-#  Not After : Apr 14 05:12:17 2015 GMT
+#  Not Before: Dec 18 00:00:00 2014 GMT
+#  Not After : Jan 17 23:59:59 2016 GMT
 our %NOT_BEFORE = (
-    year      => 2005,
-    month     =>  4,
-    day       => 16,
-    hour      =>  5,
-    minute    => 12,
-    second    => 17,
+    year      => 2014,
+    month     => 12,
+    day       => 18,
+    hour      =>  0,
+    minute    =>  0,
+    second    =>  0,
     time_zone => 'UTC'
 );
 our %NOT_AFTER  = (
-    year      => 2015,
-    month     =>  4,
-    day       => 14,
-    hour      =>  5,
-    minute    => 12,
-    second    => 17,
+    year      => 2016,
+    month     =>  1,
+    day       => 17,
+    hour      => 23,
+    minute    => 59,
+    second    => 59,
     time_zone => 'UTC'
 );
 
