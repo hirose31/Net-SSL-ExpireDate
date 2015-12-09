@@ -16,24 +16,24 @@ filters {
     is_expired  => [qw(eval)],
 };
 
-# Not Before: Jun 23 03:55:08 2013 GMT
-# Not After : Jun 23 18:07:59 2015 GMT
+# Not Before: Jun 20 16:38:00 2015 GMT
+# Not After : Jun 21 04:34:05 2017 GMT
 our %NOT_BEFORE = (
-    year      => 2013,
+    year      => 2015,
     month     =>  6,
-    day       => 23,
-    hour      =>  3,
-    minute    => 55,
-    second    =>  8,
+    day       => 20,
+    hour      => 16,
+    minute    => 38,
+    second    => 00,
     time_zone => 'UTC'
 );
 our %NOT_AFTER  = (
-    year      => 2015,
+    year      => 2017,
     month     =>  6,
-    day       => 23,
-    hour      => 18,
-    minute    =>  7,
-    second    => 59,
+    day       => 21,
+    hour      =>  4,
+    minute    => 34,
+    second    =>  5,
     time_zone => 'UTC'
 );
 
@@ -65,7 +65,7 @@ run {
 }
 
 __END__
-=== e-ipa2.ipa.go.jp
+=== auth.startssl.com
 --- input: auth.startssl.com
 --- expire_date
 DateTime->new(%main::NOT_AFTER);
