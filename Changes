@@ -1,5 +1,8 @@
 Revision history for Net-SSL-ExpireDate
 
+1.15  2015-12-09
+  * Remove debugging code
+
 1.14  2015-12-09
   * Process SSL3_RT_ALERT correctly
     ref: https://rt.cpan.org/Public/Bug/Display.html?id=110171
