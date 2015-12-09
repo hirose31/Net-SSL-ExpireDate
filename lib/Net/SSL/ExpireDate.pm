@@ -187,7 +187,20 @@ sub _peer_certificate {
     my $do_loop = 1;
     while ($do_loop) {
         my $record = _get_record($sock);
-        croak "record type is not HANDSHAKE" if $record->{type} != $SSL3_RT_HANDSHAKE;
+        if ($record->{type} != $SSL3_RT_HANDSHAKE) {
+            if ($record->{type} == $SSL3_RT_ALERT) {
+                my $d1 = unpack 'C', substr $record->{data}, 0, 1;
+                p $d1;
+                p $SSL3_AL_WARNING;
+                if ($d1 eq $SSL3_AL_WARNING) {
+                    ; # go ahead
+                } else {
+                    croak "record type is SSL3_AL_FATAL";
+                }
+            } else {
+                croak "record type is not HANDSHAKE";
+            }
+        }
 
         while (my $handshake = _get_handshake($record)) {
             croak "too many loop" if $do_loop++ >= 10;
