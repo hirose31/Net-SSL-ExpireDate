@@ -190,8 +190,6 @@ sub _peer_certificate {
         if ($record->{type} != $SSL3_RT_HANDSHAKE) {
             if ($record->{type} == $SSL3_RT_ALERT) {
                 my $d1 = unpack 'C', substr $record->{data}, 0, 1;
-                p $d1;
-                p $SSL3_AL_WARNING;
                 if ($d1 eq $SSL3_AL_WARNING) {
                     ; # go ahead
                 } else {
