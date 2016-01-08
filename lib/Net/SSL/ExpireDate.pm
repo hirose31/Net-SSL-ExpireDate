@@ -260,8 +260,23 @@ sub _send_client_hello {
     # session_id
     push @buf, 0;
     # cipher_suites
-    $len = 46 * 2;
+    $len = 61 * 2;
     my @decCipherSuites = (
+      49199,
+      49195,
+      49200,
+      49196,
+      158,
+      162,
+      163,
+      159,
+      49191,
+      49187,
+      49171,
+      49161,
+      49192,
+      49188,
+      49172,
       49162,
       103,
       51,
