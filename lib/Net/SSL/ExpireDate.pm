@@ -238,7 +238,7 @@ sub _send_client_hello {
     my(@buf,$len);
     ## record
     push @buf, $SSL3_RT_HANDSHAKE;
-    push @buf, 3, 0;
+    push @buf, 3, 1;
     push @buf, undef, undef;
     my $pos_record_len = $#buf-1;
 
