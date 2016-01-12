@@ -1,5 +1,8 @@
 Revision history for Net-SSL-ExpireDate
 
+1.16  2016-01-12
+  * Add modern cipher suites and change SSLv3 to TLSv1 #2
+
 1.15  2015-12-09
   * Remove debugging code
 
