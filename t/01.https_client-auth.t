@@ -20,20 +20,20 @@ filters {
 # Not After : Jun 21 04:34:05 2017 GMT
 our %NOT_BEFORE = (
     year      => 2015,
-    month     =>  6,
-    day       => 20,
-    hour      => 16,
-    minute    => 38,
-    second    => 00,
+    month     => 12,
+    day       => 19,
+    hour      =>  6,
+    minute    => 42,
+    second    => 12,
     time_zone => 'UTC'
 );
 our %NOT_AFTER  = (
     year      => 2017,
-    month     =>  6,
-    day       => 21,
-    hour      =>  4,
-    minute    => 34,
-    second    =>  5,
+    month     => 12,
+    day       => 19,
+    hour      =>  6,
+    minute    => 42,
+    second    => 12,
     time_zone => 'UTC'
 );
 
