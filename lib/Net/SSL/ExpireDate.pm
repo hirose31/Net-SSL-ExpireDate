@@ -238,7 +238,7 @@ sub _send_client_hello {
     my(@buf,$len);
     ## record
     push @buf, $SSL3_RT_HANDSHAKE;
-    push @buf, 3, 0;
+    push @buf, 3, 1;
     push @buf, undef, undef;
     my $pos_record_len = $#buf-1;
 
@@ -260,10 +260,73 @@ sub _send_client_hello {
     # session_id
     push @buf, 0;
     # cipher_suites
-    $len = 27 * 2;
+    $len = 61 * 2;
+    my @decCipherSuites = (
+      49199,
+      49195,
+      49200,
+      49196,
+      158,
+      162,
+      163,
+      159,
+      49191,
+      49187,
+      49171,
+      49161,
+      49192,
+      49188,
+      49172,
+      49162,
+      103,
+      51,
+      64,
+      107,
+      56,
+      57,
+      49170,
+      49160,
+      156,
+      157,
+      60,
+      61,
+      47,
+      53,
+      49186,
+      49185,
+      49184,
+      165,
+      161,
+      106,
+      105,
+      104,
+      55,
+      54,
+      49183,
+      49182,
+      49181,
+      164,
+      160,
+      63,
+      62,
+      50,
+      49,
+      48,
+      10,
+      136,
+      135,
+      134,
+      133,
+      132,
+      69,
+      68,
+      67,
+      66,
+      65,
+    );
     push @buf, (($len >> 8) & 0xFF);
     push @buf, (($len     ) & 0xFF);
-    for (my $i=1; $i<=27; $i++) {
+    foreach my $i (@decCipherSuites) {
         push @buf, (($i >> 8) & 0xFF);
         push @buf, (($i     ) & 0xFF);
     }
