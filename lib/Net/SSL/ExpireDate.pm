@@ -127,6 +127,24 @@ sub begin_date {
 *not_after  = \&expire_date;
 *not_before = \&begin_date;
 
+sub is_begun {
+    my ($self, $duration) = @_;
+    $duration ||= DateTime::Duration->new();
+
+    if (! $self->{begin_date}) {
+        $self->expire_date;
+    }
+
+    if (! ref($duration)) { # if scalar
+        $duration = DateTime::Duration->new(seconds => parse_duration($duration));
+    }
+
+    my $db = DateTime->now()->subtract_duration( $duration );
+    ### db: $db->iso8601
+
+    return DateTime->compare($db, $self->{begin_date}) >= 0 ? 1 : ();
+}
+
 sub is_expired {
     my ($self, $duration) = @_;
     $duration ||= DateTime::Duration->new();
