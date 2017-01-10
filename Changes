@@ -1,5 +1,9 @@
 Revision history for Net-SSL-ExpireDate
 
+1.18  2017-01-10
+  * Fix handling servername (SNI) contains numeric character
+    ref: issue #5
+
 1.17  2016-01-22
   * Update certificate for t/02.file.t
     ref: https://rt.cpan.org/Public/Bug/Display.html?id=111353
