@@ -335,11 +335,13 @@ sub _send_client_hello {
     push @buf, 0;
 
     if ($servername) {
-        my $sn_len = length $servername;
         # Extensions length
-        push @buf, ((($sn_len+9) >> 8) & 0xFF);
-        push @buf, ((($sn_len+9)     ) & 0xFF);
+        my $buf_len = scalar(@buf);
+        my $buf_len_pos = $#buf+1;
+        push @buf, undef, undef;
+
         # SNI (Server Name Indication)
+        my $sn_len = length $servername;
         # Extension Type: Server Name
         push @buf, 0, 0;
         # Length
@@ -354,7 +356,13 @@ sub _send_client_hello {
         push @buf, (($sn_len >> 8) & 0xFF);
         push @buf, (($sn_len     ) & 0xFF);
         # Servername
-        push @buf, split //, $servername;
+        for my $c (split //, $servername) {
+            push @buf, ord($c);
+        }
+
+        my $ex_len = scalar(@buf) - $buf_len - 2;
+        $buf[ $buf_len_pos   ] = ((($ex_len) >> 8) & 0xFF);
+        $buf[ $buf_len_pos+1 ] = ((($ex_len)     ) & 0xFF);
     }
 
     # record length
