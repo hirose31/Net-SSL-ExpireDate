@@ -1,5 +1,9 @@
 Revision history for Net-SSL-ExpireDate
 
+1.19 2017-01-13
+  * Add some SSL extensions (signature_algorithms, heartbeat)
+    ref: https://rt.cpan.org/Ticket/Display.html?id=118163
+
 1.18  2017-01-10
   * Fix handling servername (SNI) contains numeric character
     ref: issue #5
