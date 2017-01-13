@@ -256,11 +256,12 @@ sub _send_client_hello {
     push @buf, (($time>>16) & 0xFF);
     push @buf, (($time>> 8) & 0xFF);
     push @buf, (($time    ) & 0xFF);
-    push @buf, ((0xFF) x 28);
+    for (1..28) {
+        push @buf, int(rand(0xFF));
+    }
     # session_id
     push @buf, 0;
     # cipher_suites
-    $len = 61 * 2;
     my @decCipherSuites = (
       49199,
       49195,
@@ -324,45 +325,74 @@ sub _send_client_hello {
       66,
       65,
     );
+    $len = scalar(@decCipherSuites) * 2;
     push @buf, (($len >> 8) & 0xFF);
     push @buf, (($len     ) & 0xFF);
     foreach my $i (@decCipherSuites) {
         push @buf, (($i >> 8) & 0xFF);
         push @buf, (($i     ) & 0xFF);
     }
+
     # compression
     push @buf, 1;
     push @buf, 0;
 
+    # Extensions length
+    my @ext = (undef, undef);
+
+    # Extension: server_name
     if ($servername) {
-        # Extensions length
-        my $buf_len = scalar(@buf);
-        my $buf_len_pos = $#buf+1;
-        push @buf, undef, undef;
+        # my $buf_len = scalar(@buf);
+        # my $buf_len_pos = $#buf+1;
+        # push @buf, undef, undef;
 
         # SNI (Server Name Indication)
         my $sn_len = length $servername;
         # Extension Type: Server Name
-        push @buf, 0, 0;
+        push @ext, 0, 0;
         # Length
-        push @buf, ((($sn_len+5) >> 8) & 0xFF);
-        push @buf, ((($sn_len+5)     ) & 0xFF);
+        push @ext, ((($sn_len+5) >> 8) & 0xFF);
+        push @ext, ((($sn_len+5)     ) & 0xFF);
         # Server Name Indication Length
-        push @buf, ((($sn_len+3) >> 8) & 0xFF);
-        push @buf, ((($sn_len+3)     ) & 0xFF);
+        push @ext, ((($sn_len+3) >> 8) & 0xFF);
+        push @ext, ((($sn_len+3)     ) & 0xFF);
         # Server Name Type: host_name
-        push @buf, 0;
+        push @ext, 0;
         # Length of servername
-        push @buf, (($sn_len >> 8) & 0xFF);
-        push @buf, (($sn_len     ) & 0xFF);
+        push @ext, (($sn_len >> 8) & 0xFF);
+        push @ext, (($sn_len     ) & 0xFF);
         # Servername
         for my $c (split //, $servername) {
-            push @buf, ord($c);
+            push @ext, ord($c);
         }
+    }
 
-        my $ex_len = scalar(@buf) - $buf_len - 2;
-        $buf[ $buf_len_pos   ] = ((($ex_len) >> 8) & 0xFF);
-        $buf[ $buf_len_pos+1 ] = ((($ex_len)     ) & 0xFF);
+    # Extension: signature_algorithms (>= TLSv1.2)
+    push @ext, 0x00, 0x0D; # signature_algorithms
+    push @ext, 0, 32; # length
+    push @ext, 0, 30; # signature hash algorithms length
+    # enum {
+    #     none(0), md5(1), sha1(2), sha224(3), sha256(4), sha384(5),
+    #     sha512(6), (255)
+    # } HashAlgorithm;
+    for my $ha (2..6) {
+        # enum { anonymous(0), rsa(1), dsa(2), ecdsa(3), (255) }
+        #   SignatureAlgorithm;
+        for my $sa (1..3) {
+            push @ext, $ha, $sa;
+        }
+    }
+
+    # Extension: Heartbeat
+    push @ext, 0x00, 0x0F; # heartbeat
+    push @ext, 0x00, 0x01; # length
+    push @ext, 0x01;       # peer_allowed_to_send
+
+    my $ext_len = scalar(@ext) - 2;
+    if ($ext_len > 0) {
+        $ext[0] = (($ext_len) >> 8) & 0xFF;
+        $ext[1] = (($ext_len)     ) & 0xFF;
+        push @buf, @ext;
     }
 
     # record length
