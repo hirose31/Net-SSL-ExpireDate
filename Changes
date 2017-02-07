@@ -1,5 +1,9 @@
 Revision history for Net-SSL-ExpireDate
 
+1.20 2017-02-07
+  * Update expire date in test cases
+    ref: #6
+
 1.19 2017-01-13
   * Add some SSL extensions (signature_algorithms, heartbeat)
     ref: https://rt.cpan.org/Ticket/Display.html?id=118163
