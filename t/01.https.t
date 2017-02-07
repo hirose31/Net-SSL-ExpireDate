@@ -17,18 +17,18 @@ filters {
 };
 
 our %NOT_BEFORE = (
-    year      => 2016,
+    year      => 2017,
     month     =>  1,
-    day       =>  5,
+    day       => 13,
     hour      =>  0,
     minute    =>  0,
     second    =>  0,
     time_zone => 'UTC'
 );
 our %NOT_AFTER  = (
-    year      => 2017,
-    month     =>  2,
-    day       =>  3,
+    year      => 2018,
+    month     =>  3,
+    day       => 14,
     hour      => 23,
     minute    => 59,
     second    => 59,
