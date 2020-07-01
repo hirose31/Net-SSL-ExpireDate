@@ -551,9 +551,10 @@ returns it. %option is to specify certificate.
 
   KEY    VALUE
   ----------------------------
-  ssl    "hostname[:port]"
-  https  (same as above ssl)
-  file   "path/to/certificate"
+  ssl     "hostname[:port]"
+  https   (same as above ssl)
+  file    "path/to/certificate"
+  timeout "Timeout in seconds"
 
 =head2 expire_date
 
