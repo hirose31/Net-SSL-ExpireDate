@@ -58,17 +58,21 @@ sub new {
     my ( $class, %opt ) = @_;
 
     my $self = bless {
-        type => $opt{'type'} ? $opt{'type'} : undef,
-        host => $opt{'host'} ? $opt{'host'} : undef,
-        port => $opt{'port'} ? $opt{'port'} : undef,
-        expire_date  => undef,
-        timeout      => $opt{'timeout'} ? $opt{'timeout'} : undef,
+        type         => $opt{'type'}         ? $opt{'type'}         : undef,
+        host         => $opt{'host'}         ? $opt{'host'}         : undef,
+        port         => $opt{'port'}         ? $opt{'port'}         : undef,
+        timeout      => $opt{'timeout'}      ? $opt{'timeout'}      : undef,
         ssl_hostname => $opt{'ssl_hostname'} ? $opt{'ssl_hostname'} : undef,
+        file         => $opt{'file'}         ? $opt{'file'}         : undef,
     }, $class;
+
+    if ( !$self->{'type'} ) {
+        croak 'No type supplied';
+    }
 
     # Only 2 options are allowed
     if ( ( $self->{'type'} ne 'socket' ) && ( $self->{'type'} ne 'file' ) ) {
-        croak 'Invalid option: ' . $self->{'type'};
+        croak 'Invalid type: ' . $self->{'type'};
     }
 
     # User supplied 'file' as type, but did not supply a file
@@ -77,8 +81,8 @@ sub new {
     }
 
     # User supplied 'socket' as type, but did not supply host or port
-    if (   ( $self->{'type'} eq 'socket' ) && ( !$self->{'port'} )
-        || ( !$self->{'host'} ) )
+    if (   ( $self->{'type'} eq 'socket' )
+        && ( ( !$self->{'port'} ) || ( !$self->{'host'} ) ) )
     {
         croak 'Missing port and/or host';
     }
@@ -119,7 +123,7 @@ sub get_cert {
         return $self;
     }
     elsif ( $self->{'type'} eq 'file' ) {
-        my $x509 = Crypt::OpenSSL::X509->new_from_file( $self->{target} );
+        my $x509 = Crypt::OpenSSL::X509->new_from_file( $self->{'file'} );
         $self->{'expire_date'} =
           DateTime->from_epoch( epoch => str2time( $x509->notAfter ) );
         $self->{'begin_date'} =
@@ -500,19 +504,23 @@ Net::SSL::ExpireDate - obtain expiration date of certificate
 
     use Net::SSL::ExpireDate;
 
-    $ed = Net::SSL::ExpireDate->new( ssl   => 'example.com:10443' );
-    $ed = Net::SSL::ExpireDate->new( ssl   => 'example.com:465' ); # smtps
-    $ed = Net::SSL::ExpireDate->new( ssl   => 'example.com:995' ); # pop3s
-    $ed = Net::SSL::ExpireDate->new( file  => '/etc/ssl/cert.pem' );
+    my $ed = Net::SSL::ExpireDate->new(
+		type         => 'socket',
+		host         => '192.168.1.1',
+		ssl_hostname => 'example.com',
+		port         => 10993,
+		timeout      => 5,
+	);
+    my $ed = Net::SSL::ExpireDate->new( file  => '/etc/ssl/cert.pem' );
 
-    if (my $expire_obj = $ed->get_dates) {
+    if (my $cert = $ed->get_cert) {
       # do something
-      $expire_date = $ed->{'expire_date'};         # return DateTime instance
+      $expire_date = $cert->{'expire_date'};         # return DateTime instance
 
-      $expired = $ed->is_expired;              # examine already expired
+      $expired = $cert->is_expired;              # examine already expired
 
-      $expired = $ed->is_expired('2 months');  # will expire after 2 months
-      $expired = $ed->is_expired(DateTime::Duration->new(months=>2));  # ditto
+      $expired = $cert->is_expired('2 months');  # will expire after 2 months
+      $expired = $cert->is_expired(DateTime::Duration->new(months=>2));  # ditto
     }
 
 =head1 DESCRIPTION
