@@ -18,8 +18,8 @@ filters {
 
 our %NOT_BEFORE = (
     year      => 2020,
-    month     =>  4,
-    day       => 19,
+    month     =>  6,
+    day       => 18,
     hour      => 12,
     minute    => 10,
     second    => 14,
@@ -27,8 +27,8 @@ our %NOT_BEFORE = (
 );
 our %NOT_AFTER  = (
     year      => 2020,
-    month     =>  7,
-    day       => 18,
+    month     =>  9,
+    day       => 16,
     hour      => 12,
     minute    => 10,
     second    => 14,
