@@ -407,6 +407,9 @@ sub _send_client_hello {
         }
     }
 
+    # ec_point_formats
+    push @ext,   0x00, 0x0b, 0x00, 0x04, 0x03, 0x00, 0x01, 0x02;
+
     # Extension: Heartbeat
     push @ext, 0x00, 0x0F; # heartbeat
     push @ext, 0x00, 0x01; # length
