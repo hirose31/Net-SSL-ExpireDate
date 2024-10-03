@@ -1,5 +1,7 @@
 Revision history for Net-SSL-ExpireDate
 
+{{$NEXT}}
+
 1.24 2022-06-22
   * Add extension ec_point_formats
     ref: #14
