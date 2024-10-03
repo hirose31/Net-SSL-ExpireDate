@@ -67,10 +67,10 @@
    "provides" : {
       "Net::SSL::ExpireDate" : {
          "file" : "lib/Net/SSL/ExpireDate.pm",
-         "version" : "1.24"
+         "version" : "1.24_1"
       }
    },
-   "release_status" : "stable",
+   "release_status" : "testing",
    "resources" : {
       "bugtracker" : {
          "web" : "https://github.com/hirose31/Net-SSL-ExpireDate/issues"
@@ -82,7 +82,7 @@
          "web" : "https://github.com/hirose31/Net-SSL-ExpireDate"
       }
    },
-   "version" : "1.24",
+   "version" : "1.24_1",
    "x_contributors" : [
       "68user <mc68030@gmail.com>",
       "antonc42 <anton.c42@gmail.com>",
