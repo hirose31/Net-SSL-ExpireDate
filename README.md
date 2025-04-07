@@ -86,7 +86,18 @@ return type of examinee certificate. "ssl" or "file".
 
 return hostname or path of examinee certificate.
 
-# BUGS AND LIMITATIONS
+# LIMITATIONS
+
+This module supports the following TLS versions:
+
+- 1.0 (SSL 3.1)
+- 1.2
+
+does not support the following TLS versions:
+
+- 1.3
+
+# BUGS
 
 No bugs have been reported.
 
